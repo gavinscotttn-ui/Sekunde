@@ -21,9 +21,17 @@ between visits.
 
 ### Built so nobody has to answer the same thing twice
 
-- **Options for everyone.** The six per-user settings are chosen once and apply
-  to every person, including anyone added later. A person only ever needs a name
-  and, where a service requires it, an email address.
+- **Pick a setup, not six settings.** Step 2 opens with three common setups —
+  desk phones, desk phones and apps, or apps only. One click answers almost
+  everything; anything a preset cannot safely assume (which mobile platform, for
+  instance) is asked on its own straight afterwards.
+- **Options for everyone.** Those per-user settings apply to every person,
+  including anyone added later, and collapse to a single summary line. A person
+  only ever needs a name and, where a service requires it, an email address.
+- **One topic at a time.** Step 3 is an accordion: each of the four topics opens
+  on its own, then collapses to a tick and a one-line summary once finished.
+- **Only the exceptions are marked.** Fields are required by default, so the
+  page marks the optional ones rather than badging almost every question.
 - **Use these for everyone.** One button pulls anybody who was set up
   individually back onto the team defaults.
 - **Different for this person.** The exceptions get their own options without

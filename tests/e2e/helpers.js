@@ -6,12 +6,16 @@ export const SAMPLE = {
   portalUser: 'Jane Smith',
 }
 
-/** Choose an option inside a named group, scoped to a container when given. */
+/**
+ * Choose an option inside a named group, scoped to a container when given.
+ * Uses click rather than check: answering a question can make it give way to a
+ * summary, and check() would then wait forever for an element that has gone.
+ */
 export async function choose(scope, groupName, optionLabel) {
   await scope
     .getByRole('group', { name: groupName })
     .getByRole('radio', { name: optionLabel, exact: true })
-    .check()
+    .click()
 }
 
 export async function fillAboutStep(page) {
@@ -22,33 +26,34 @@ export async function fillAboutStep(page) {
 
 export async function fillTeamStep(page) {
   const defaults = page.locator('.panel--defaults')
-  await choose(defaults, /^Voicemail/, 'Yes')
-  await choose(defaults, /^Send voicemail to email/, 'Yes')
-  await choose(defaults, /^Number shown on outgoing calls/, 'Main office number')
-  await choose(defaults, /^Desk phone/, 'Corded desk phone')
+  await defaults.getByRole('button', { name: /Desk phones and apps/ }).click()
   await choose(defaults, /^Mobile app/, 'iPhone (iOS)')
-  await choose(defaults, /^Desktop app/, 'No')
 
-  await page.getByText('Add several people at once').click()
+  await page.getByText('Paste a list instead').click()
   await page
-    .getByLabel('Paste your staff list')
+    .getByLabel('Your staff list')
     .fill('Jane Smith, jane@northshore.co.uk\nRoss Kerr, ross@northshore.co.uk')
   await page.getByRole('button', { name: 'Add these people' }).click()
 
-  // The blank starter row is not needed once real people have been pasted in.
-  await page.locator('.person').first().getByRole('button', { name: /^Remove/ }).click()
   await page.getByRole('button', { name: 'Continue' }).click()
 }
 
 export async function fillCallsStep(page) {
   await page.getByLabel('Emergency divert number').fill(SAMPLE.divert)
   await page.getByLabel('Numbers moving to the new system').fill(SAMPLE.portNumbers)
+  await page.getByRole('button', { name: /^Next: menus and voicemail/ }).click()
+
   await choose(page, /^Do you need an auto attendant\?/, 'No')
   await choose(page, /^Do you want a company voicemail box\?/, 'No')
+  await page.getByRole('button', { name: /^Next: opening hours/ }).click()
+
   await choose(page, /^Do the lines close at lunchtime/, 'No')
-  await choose(page, /^Do you want music or a message/, 'No')
-  await page.getByLabel('Nominated portal user').fill(SAMPLE.portalUser)
+  await choose(page, /^Music or a message while callers are on hold\?/, 'No')
+  await page.getByRole('button', { name: /^Next: day-to-day running/ }).click()
+
+  await page.getByLabel('Who will look after the system?').fill(SAMPLE.portalUser)
   await choose(page, /^Do you need call pick-up groups\?/, 'No')
   await choose(page, /^Should everyone show the main number/, 'Yes, everyone shows the main number')
+
   await page.getByRole('button', { name: 'Continue' }).click()
 }

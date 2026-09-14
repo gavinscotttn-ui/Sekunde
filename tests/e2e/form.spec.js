@@ -29,7 +29,7 @@ test('loads cleanly under the production security headers', async ({ page }) => 
   expect(headers['x-content-type-options']).toBe('nosniff')
   expect(headers['referrer-policy']).toBe('no-referrer')
 
-  await expect(page.getByRole('heading', { name: 'Your customer requirements form' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Let’s set up your phones' })).toBeVisible()
 
   expect(seen.consoleErrors).toEqual([])
   expect(seen.pageErrors).toEqual([])
@@ -59,7 +59,7 @@ test('fills the whole form and downloads a real spreadsheet', async ({ page }) =
   await page.goto('/')
 
   await fillAboutStep(page)
-  await expect(page.getByRole('heading', { name: 'Your team' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Your team', exact: true })).toBeVisible()
 
   await fillTeamStep(page)
   await expect(page.getByRole('heading', { name: 'Call handling' })).toBeVisible()
@@ -94,13 +94,17 @@ test('one change to the team defaults reaches everybody', async ({ page }) => {
   await fillTeamStep(page)
   await page.getByRole('button', { name: 'Back' }).click()
 
-  await expect(page.getByText('Corded phone').first()).toBeVisible()
-  await page.locator('.panel--defaults').getByRole('radio', { name: 'Cordless handset', exact: true }).check()
+  const defaults = page.locator('.panel--defaults')
+  await expect(defaults.getByText('Corded phone')).toBeVisible()
+  await defaults.getByRole('button', { name: 'Change these options' }).click()
+  await defaults.getByRole('radio', { name: 'Cordless handset', exact: true }).check()
+  await defaults.getByRole('button', { name: 'Done with these options' }).click()
 
+  await expect(defaults.getByText(/Cordless phone/)).toBeVisible()
   const summaries = page.locator('.person__summary-text')
   await expect(summaries).toHaveCount(2)
   for (const text of await summaries.allTextContents()) {
-    expect(text).toContain('Cordless phone')
+    expect(text).toBe('Same options as everyone else')
   }
 })
 
@@ -115,9 +119,8 @@ test('an individual can differ without disturbing anyone else', async ({ page })
   await first.getByRole('group', { name: /^Desk phone/ }).getByRole('radio', { name: 'No desk phone' }).check()
 
   await expect(first.getByText('Set individually')).toBeVisible()
-  await expect(page.locator('.person').nth(1).getByText('Team defaults')).toBeVisible()
+  await expect(page.locator('.person').nth(1).getByText('Same options as everyone else')).toBeVisible()
 
-  await expect(page.getByText('One person has their own options at the moment.')).toBeVisible()
   page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: 'Use these for everyone' }).click()
   await expect(page.locator('.chip--custom')).toHaveCount(0)
@@ -136,6 +139,7 @@ test('saves progress to a file and resumes from it', async ({ page }) => {
   const draftPath = await draft.path()
 
   page.once('dialog', (dialog) => dialog.accept())
+  await page.getByRole('button', { name: 'More actions' }).click()
   await page.getByRole('button', { name: 'Start again' }).click()
   await expect(page.getByLabel('Company name')).toHaveValue('')
 
@@ -170,5 +174,32 @@ test('sends anyone who skips a question straight back to it', async ({ page }) =
   await page.goto('/')
   await page.getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByText('Enter the company name.')).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Your customer requirements form' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Let’s set up your phones' })).toBeVisible()
+})
+
+test('shows one call-handling topic at a time', async ({ page }) => {
+  await page.goto('/')
+  await fillAboutStep(page)
+  await fillTeamStep(page)
+
+  const openBodies = page.locator('.section__body:not([hidden])')
+  await expect(openBodies).toHaveCount(1)
+  await expect(page.getByLabel('Emergency divert number')).toBeVisible()
+
+  await page.getByRole('button', { name: /Day-to-day running/ }).click()
+  await expect(openBodies).toHaveCount(1)
+  await expect(page.getByLabel('Who will look after the system?')).toBeVisible()
+  await expect(page.getByLabel('Emergency divert number')).toBeHidden()
+})
+
+test('keeps the rarely used actions tucked away until asked for', async ({ page }) => {
+  await page.goto('/')
+  const resume = page.getByRole('button', { name: 'Resume a saved form' })
+  await expect(resume).toBeHidden()
+
+  await page.getByRole('button', { name: 'More actions' }).click()
+  await expect(resume).toBeVisible()
+
+  await page.keyboard.press('Escape')
+  await expect(resume).toBeHidden()
 })

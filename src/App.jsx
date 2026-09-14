@@ -3,7 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  Download,
+  EllipsisVertical,
   FileDown,
   FolderOpen,
   LockKeyhole,
@@ -47,8 +47,10 @@ export default function App() {
   const [data, setData] = useState(createForm)
   const [checkedSteps, setCheckedSteps] = useState(() => new Set())
   const [notice, setNotice] = useState(null)
+  const [menuOpen, setMenuOpen] = useState(false)
   const mainRef = useRef(null)
   const fileInputRef = useRef(null)
+  const menuRef = useRef(null)
 
   const problems = useMemo(() => listProblems(data), [data])
   const completed = useMemo(
@@ -135,6 +137,21 @@ export default function App() {
     return () => window.removeEventListener('beforeunload', warn)
   }, [started])
 
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const close = (event) => {
+      if (event.type === 'keydown' && event.key !== 'Escape') return
+      if (event.type === 'pointerdown' && menuRef.current?.contains(event.target)) return
+      setMenuOpen(false)
+    }
+    document.addEventListener('pointerdown', close)
+    document.addEventListener('keydown', close)
+    return () => {
+      document.removeEventListener('pointerdown', close)
+      document.removeEventListener('keydown', close)
+    }
+  }, [menuOpen])
+
   useEffect(() => registerAssistantTools(setData, setStep), [])
 
   return (
@@ -159,16 +176,38 @@ export default function App() {
           <button type="button" className="ghost-button ghost-button--wide" onClick={handleSaveDraft}>
             <Save size={16} aria-hidden="true" /> Save progress
           </button>
-          <button
-            type="button"
-            className="ghost-button ghost-button--wide"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <FolderOpen size={16} aria-hidden="true" /> Resume
-          </button>
-          <button type="button" className="ghost-button ghost-button--wide" onClick={handleReset}>
-            <RotateCcw size={16} aria-hidden="true" /> Start again
-          </button>
+          <div className="menu" ref={menuRef}>
+            <button
+              type="button"
+              className="ghost-button"
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
+              aria-label="More actions"
+              onClick={() => setMenuOpen((value) => !value)}
+            >
+              <EllipsisVertical size={16} aria-hidden="true" />
+            </button>
+            <div className="menu__body" hidden={!menuOpen}>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false)
+                  fileInputRef.current?.click()
+                }}
+              >
+                <FolderOpen size={16} aria-hidden="true" /> Resume a saved form
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false)
+                  handleReset()
+                }}
+              >
+                <RotateCcw size={16} aria-hidden="true" /> Start again
+              </button>
+            </div>
+          </div>
           <input
             ref={fileInputRef}
             className="visually-hidden"
@@ -255,44 +294,19 @@ export default function App() {
           </nav>
         </main>
 
-        <aside className="rail rail--help" aria-label="Help and alternatives">
+        <aside className="rail rail--help" aria-label="Other ways to do this">
           <section className="help-card help-card--manual">
             <h2>Rather fill it out manually?</h2>
-            <p>Download the plain CRF spreadsheet, fill it in however you like, and email it back to us.</p>
+            <p>Download the plain CRF spreadsheet and email it back to us.</p>
             <a className="secondary-button" href={BLANK_FORM_PATH} download>
               <FileDown size={18} aria-hidden="true" /> Download the form
             </a>
             <p className="help-card__meta">Excel workbook, 49 KB</p>
           </section>
 
-          <section className="help-card">
-            <h2>What you will need</h2>
-            <ul>
-              <li>Your staff names and email addresses</li>
-              <li>The numbers moving to the new system</li>
-              <li>Your opening hours</li>
-              <li>A mobile number for emergency diverts</li>
-            </ul>
-          </section>
-
-          <section className="help-card">
-            <h2>Recording your own greeting</h2>
-            <p>BroadSoft Recorder makes a clean phone recording you can email to us.</p>
-            <a href="https://apps.apple.com/gb/app/broadsoft-recorder/id635802005" target="_blank" rel="noreferrer noopener">
-              <Download size={14} aria-hidden="true" /> iPhone
-            </a>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.yydigital.broadsoft.recorder&hl=en_GB"
-              target="_blank"
-              rel="noreferrer noopener"
-            >
-              <Download size={14} aria-hidden="true" /> Android
-            </a>
-          </section>
-
           <section className="help-card help-card--contact">
             <h2>Prefer to talk it through?</h2>
-            <p>Ask for the representative who sent you this form and we will complete it with you.</p>
+            <p>Ask for the representative who sent you this form.</p>
             <a href={CONTACT.phoneHref}>{CONTACT.phone}</a>
             <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
           </section>

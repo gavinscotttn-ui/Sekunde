@@ -48,6 +48,60 @@ export const CALL_PATTERN_OPTIONS = [
   { value: 'Sequential', label: 'Ring one after another' },
 ]
 
+/**
+ * Common ways a small team is set up. Choosing one answers most of the
+ * per-user questions in a single click; anything a preset cannot safely assume
+ * (which mobile platform, for instance) is asked afterwards on its own.
+ */
+export const TEAM_PRESETS = [
+  {
+    id: 'deskPhones',
+    title: 'Desk phones',
+    blurb: 'A corded phone on every desk. Voicemail arrives by email.',
+    settings: {
+      voicemail: 'yes',
+      voicemailToEmail: 'yes',
+      callerId: 'Main office number',
+      handset: 'Corded',
+      mobileApp: 'None',
+      desktopApp: 'no',
+    },
+  },
+  {
+    id: 'phonesAndApp',
+    title: 'Desk phones and apps',
+    blurb: 'A corded phone each, plus the apps for calls away from the desk.',
+    settings: {
+      voicemail: 'yes',
+      voicemailToEmail: 'yes',
+      callerId: 'Main office number',
+      handset: 'Corded',
+      desktopApp: 'yes',
+    },
+  },
+  {
+    id: 'appsOnly',
+    title: 'Apps only',
+    blurb: 'No desk phones — everyone works from the mobile and desktop apps.',
+    settings: {
+      voicemail: 'yes',
+      voicemailToEmail: 'yes',
+      callerId: 'Main office number',
+      handset: 'None',
+      desktopApp: 'yes',
+    },
+  },
+]
+
+/** Which preset, if any, the current defaults came from. */
+export function matchPreset(settings) {
+  return (
+    TEAM_PRESETS.find((preset) =>
+      Object.entries(preset.settings).every(([key, value]) => settings[key] === value),
+    ) || null
+  )
+}
+
 export const DAYS = [
   { key: 'mon', label: 'Monday', short: 'Mon', weekday: true },
   { key: 'tue', label: 'Tuesday', short: 'Tue', weekday: true },

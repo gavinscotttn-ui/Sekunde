@@ -1,4 +1,4 @@
-import { FileSpreadsheet, ShieldCheck } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 
 import { CONTACT, LIMITS } from '../../lib/model.js'
 import { Callout, Field, TextInput } from '../ui.jsx'
@@ -9,21 +9,13 @@ export function AboutStep({ data, setData, errors }) {
   return (
     <section className="step-panel" aria-labelledby="step-heading">
       <p className="step-kicker">Step 1 of 4</p>
-      <h1 id="step-heading">Your customer requirements form</h1>
+      <h1 id="step-heading">Let’s set up your phones</h1>
       <p className="step-lead">
-        Answer a few questions about how your team makes and receives calls. We turn them into the completed
-        spreadsheet our engineers need — about five minutes for a small team.
+        Four short steps, about five minutes. We turn your answers into the spreadsheet our engineers need.
       </p>
 
-      <Callout tone="privacy" icon={ShieldCheck} title="Everything stays on this device">
-        <p>
-          There is no account, no database, no cookies and no analytics here. Your answers live in this browser tab
-          only, are used to build the spreadsheet on your own computer, and vanish when you close the page.
-        </p>
-      </Callout>
-
       <div className="form-grid form-grid--two">
-        <Field label="Company name" required anchor="companyName" error={errors.companyName}>
+        <Field label="Company name" anchor="companyName" error={errors.companyName}>
           {({ id, describedBy, invalid }) => (
             <TextInput
               id={id}
@@ -38,13 +30,7 @@ export function AboutStep({ data, setData, errors }) {
           )}
         </Field>
 
-        <Field
-          label="Your full name"
-          hint="The person filling this in"
-          required
-          anchor="completedBy"
-          error={errors.completedBy}
-        >
+        <Field label="Your full name" anchor="completedBy" error={errors.completedBy}>
           {({ id, describedBy, invalid }) => (
             <TextInput
               id={id}
@@ -62,7 +48,8 @@ export function AboutStep({ data, setData, errors }) {
 
       <Field
         label="Your email address"
-        hint="Optional — only so we know who to reply to about this form"
+        optional
+        hint="So we know who to reply to"
         anchor="contactEmail"
         error={errors.contactEmail}
       >
@@ -81,31 +68,26 @@ export function AboutStep({ data, setData, errors }) {
         )}
       </Field>
 
-      <ol className="expectations">
-        <li>
-          <span aria-hidden="true">1</span>
-          <strong>Set your team up once</strong>
-          <p>Choose the phone, app and voicemail options everyone shares, then only change the exceptions.</p>
-        </li>
-        <li>
-          <span aria-hidden="true">2</span>
-          <strong>Tell us how calls should flow</strong>
-          <p>Numbers, opening hours, menus and groups — with plain-English explanations beside each question.</p>
-        </li>
-        <li>
-          <span aria-hidden="true">3</span>
-          <strong>Download and email</strong>
-          <p>Your browser builds the spreadsheet. You attach it to an email in your own email app.</p>
-        </li>
-      </ol>
-
-      <div className="inline-note">
-        <FileSpreadsheet size={18} aria-hidden="true" />
+      <Callout tone="privacy" icon={ShieldCheck} title="Your answers stay on this device">
         <p>
-          Stuck at any point? Call us on <a href={CONTACT.phoneHref}>{CONTACT.phone}</a> and we will fill it in with
-          you over the phone.
+          No account, no database, no cookies, no analytics. Everything happens in this browser tab and disappears when
+          you close it.
         </p>
-      </div>
+      </Callout>
+
+      <section className="ahead">
+        <h2>Handy to have nearby</h2>
+        <ul>
+          <li>Staff names, and email addresses for anyone using an app</li>
+          <li>The phone numbers moving to the new system</li>
+          <li>Your opening hours</li>
+          <li>A mobile number for emergency diverts</li>
+        </ul>
+        <p className="ahead__note">
+          Missing something? Save your progress at any point, or call <a href={CONTACT.phoneHref}>{CONTACT.phone}</a> and
+          we will fill it in with you.
+        </p>
+      </section>
     </section>
   )
 }

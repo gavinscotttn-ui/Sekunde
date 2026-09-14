@@ -33,6 +33,13 @@
   box-sizing: border-box;
 }
 
+/* Author styles beat the user-agent's [hidden] rule, so say it again here:
+   anything with the hidden attribute really is hidden, whatever display value
+   its class sets. */
+[hidden] {
+  display: none !important;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -525,12 +532,10 @@ progress::-moz-progress-bar {
   color: var(--purple-dark);
 }
 
-.field__required {
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--purple);
+.field__optional {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .field__hint {
@@ -818,42 +823,6 @@ progress::-moz-progress-bar {
 
 /* ---------------------------------------------------------- expectations */
 
-.expectations {
-  display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-}
-
-.expectations li {
-  padding: 16px;
-  background: var(--canvas);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-m);
-}
-
-.expectations span {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  margin-bottom: 8px;
-  border-radius: 50%;
-  background: var(--purple);
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.expectations strong {
-  display: block;
-  color: var(--purple-dark);
-}
-
-.expectations p {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
 /* ----------------------------------------------------------------- panels */
 
 .panel {
@@ -968,10 +937,7 @@ progress::-moz-progress-bar {
 }
 
 .person__index {
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  padding-top: 30px;
+  padding-top: 32px;
   color: var(--muted);
   font-size: 0.85rem;
   font-weight: 700;
@@ -1036,6 +1002,12 @@ progress::-moz-progress-bar {
   color: #fff;
 }
 
+.chip--preset {
+  background: var(--paper);
+  border: 1px solid var(--purple);
+  color: var(--purple-strong);
+}
+
 .person__editor {
   margin-top: 14px;
 }
@@ -1092,48 +1064,6 @@ progress::-moz-progress-bar {
 
 /* ------------------------------------------------------- question groups */
 
-.question-group {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-l);
-  overflow: hidden;
-}
-
-.question-group > header {
-  display: flex;
-  gap: 13px;
-  align-items: flex-start;
-  padding: 16px 18px;
-  background: var(--purple-pale);
-  border-bottom: 1px solid var(--purple-line);
-}
-
-.question-group__badge {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-s);
-  background: var(--purple);
-  color: #fff;
-}
-
-.question-group > header h2 {
-  font-size: 1.12rem;
-}
-
-.question-group > header p {
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-}
-
-.question-group__body {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  padding: 20px 18px;
-}
-
 .conditional {
   display: flex;
   flex-direction: column;
@@ -1142,6 +1072,245 @@ progress::-moz-progress-bar {
   border-left: 3px solid var(--purple);
   border-radius: 0 var(--radius-m) var(--radius-m) 0;
   background: var(--purple-pale);
+}
+
+
+/* ------------------------------------------------------------------- menu */
+
+.menu {
+  position: relative;
+}
+
+.menu__body {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 210px;
+  padding: 6px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow);
+}
+
+.menu__body button {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 9px 11px;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-s);
+  text-align: left;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.menu__body button:hover {
+  background: var(--purple-pale);
+}
+
+/* ---------------------------------------------------------------- step one */
+
+.ahead {
+  padding: 18px;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+}
+
+.ahead h2 {
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.ahead ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 18px;
+  list-style: disc;
+  color: var(--ink-soft);
+  font-size: 0.93rem;
+}
+
+.ahead__note {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* -------------------------------------------------------------- presets */
+
+.panel__lead {
+  max-width: 58ch;
+  color: var(--ink-soft);
+  font-size: 0.93rem;
+}
+
+.panel__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  color: var(--ink-soft);
+  font-size: 0.93rem;
+}
+
+.panel__outstanding {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.preset-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.preset-grid button {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  height: 100%;
+  padding: 15px;
+  background: var(--paper);
+  border: 1px solid var(--purple-line);
+  border-radius: var(--radius-m);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.preset-grid button:hover {
+  border-color: var(--purple);
+  box-shadow: var(--shadow-soft);
+}
+
+.preset-grid button:active {
+  transform: translateY(1px);
+}
+
+.preset-grid strong {
+  color: var(--purple-dark);
+}
+
+.preset-grid span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+/* ------------------------------------------------------------- sections */
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+}
+
+.section--open {
+  border-color: var(--purple-line);
+  box-shadow: var(--shadow-soft);
+}
+
+.section h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.section__header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  padding: 15px 17px;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-m);
+  text-align: left;
+  cursor: pointer;
+}
+
+.section__header:hover {
+  background: var(--purple-pale);
+}
+
+.section__tick {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--paper);
+  color: var(--green);
+}
+
+.section--complete .section__tick {
+  background: var(--green-pale);
+  border-color: var(--green);
+}
+
+.section__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line-strong);
+}
+
+.section__title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--purple-dark);
+}
+
+.section__title small {
+  overflow: hidden;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.section__chevron {
+  flex: none;
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.section--open .section__chevron {
+  transform: rotate(180deg);
+}
+
+.section__body {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 4px 17px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.section__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
 }
 
 /* ------------------------------------------------------------------ hours */

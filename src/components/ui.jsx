@@ -6,14 +6,14 @@
 // inline styles, so all appearance lives in styles.css.
 
 import { useId } from 'react'
-import { ChevronDown, CircleHelp, Info } from 'lucide-react'
+import { ArrowRight, Check, ChevronDown, CircleHelp, Info } from 'lucide-react'
 
 export function classNames(...values) {
   return values.filter(Boolean).join(' ')
 }
 
 /** Wraps a single control with its label, hint and error message. */
-export function Field({ label, hint, error, required = false, anchor, children, className }) {
+export function Field({ label, hint, error, optional = false, anchor, children, className }) {
   const id = useId()
   const hintId = `${id}-hint`
   const errorId = `${id}-error`
@@ -26,7 +26,7 @@ export function Field({ label, hint, error, required = false, anchor, children, 
     >
       <label className="field__label" htmlFor={id}>
         {label}
-        {required && <span className="field__required">Required</span>}
+        {optional && <span className="field__optional">Optional</span>}
       </label>
       {hint && <p className="field__hint" id={hintId}>{hint}</p>}
       {children({ id, describedBy, invalid: Boolean(error) })}
@@ -40,7 +40,7 @@ export function ChoiceField({
   label,
   hint,
   error,
-  required = false,
+  optional = false,
   anchor,
   options,
   value,
@@ -61,7 +61,7 @@ export function ChoiceField({
     >
       <legend className="field__label">
         {label}
-        {required && <span className="field__required">Required</span>}
+        {optional && <span className="field__optional">Optional</span>}
       </legend>
       {hint && <p className="field__hint" id={hintId}>{hint}</p>}
       <div className={classNames('choices', columns && `choices--${columns}`)}>
@@ -146,18 +146,38 @@ export function Callout({ tone = 'info', icon, title, children }) {
   )
 }
 
-/** A titled block of related questions. */
-export function QuestionGroup({ badge, title, description, children }) {
+/** A collapsible section: one topic open at a time, the rest a single tick line. */
+export function Section({ id, title, summary, complete, open, onToggle, onNext, nextLabel, children }) {
   return (
-    <section className="question-group">
-      <header>
-        {badge && <span className="question-group__badge" aria-hidden="true">{badge}</span>}
-        <div>
-          <h2>{title}</h2>
-          {description && <p>{description}</p>}
-        </div>
-      </header>
-      <div className="question-group__body">{children}</div>
+    <section className={classNames('section', open && 'section--open', complete && 'section--complete')}>
+      <h2>
+        <button
+          type="button"
+          className="section__header"
+          aria-expanded={open}
+          aria-controls={`${id}-body`}
+          onClick={() => onToggle(id)}
+        >
+          <span className="section__tick" aria-hidden="true">
+            {complete ? <Check size={14} strokeWidth={3} /> : <span className="section__dot" />}
+          </span>
+          <span className="section__title">
+            {title}
+            {!open && summary && <small>{summary}</small>}
+          </span>
+          <ChevronDown size={18} className="section__chevron" aria-hidden="true" />
+        </button>
+      </h2>
+      <div className="section__body" id={`${id}-body`} hidden={!open}>
+        {children}
+        {onNext && (
+          <div className="section__footer">
+            <button type="button" className="secondary-button" onClick={onNext}>
+              {nextLabel} <ArrowRight size={17} aria-hidden="true" />
+            </button>
+          </div>
+        )}
+      </div>
     </section>
   )
 }
