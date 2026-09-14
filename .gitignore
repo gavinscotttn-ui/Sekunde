@@ -6,3 +6,6 @@ dist
 .pnpm-store
 coverage
 test-results
+playwright-report
+blob-report
+.playwright
