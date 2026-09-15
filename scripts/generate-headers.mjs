@@ -1,32 +1,45 @@
 #!/usr/bin/env node
-// Regenerates vercel.json from security/headers.js.
-//   npm run headers        writes the file
-//   npm run headers:check  fails if the committed file is out of date
+// Regenerates every host configuration file from security/headers.js, so the
+// same security headers are sent whichever way the site ends up being hosted.
+//
+//   npm run headers        writes the files
+//   npm run headers:check  fails if any committed file is out of date
 
-import { readFileSync, writeFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-import { buildVercelConfig } from '../security/headers.js'
+import { GENERATED_FILES } from '../security/headers.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
-const target = join(root, 'vercel.json')
-const expected = `${JSON.stringify(buildVercelConfig(), null, 2)}\n`
+const checking = process.argv.includes('--check')
+const stale = []
 
-if (process.argv.includes('--check')) {
-  let actual = ''
-  try {
-    actual = readFileSync(target, 'utf8')
-  } catch {
-    console.error('vercel.json is missing. Run: npm run headers')
-    process.exit(1)
+for (const file of GENERATED_FILES) {
+  const target = join(root, file.path)
+  const expected = file.build()
+
+  if (checking) {
+    let actual = null
+    try {
+      actual = readFileSync(target, 'utf8')
+    } catch {
+      stale.push(`${file.path} (missing)`)
+      continue
+    }
+    if (actual !== expected) stale.push(file.path)
+    continue
   }
-  if (actual !== expected) {
-    console.error('vercel.json is out of date. Run: npm run headers')
-    process.exit(1)
-  }
-  console.log('vercel.json matches security/headers.js')
-} else {
+
+  mkdirSync(dirname(target), { recursive: true })
   writeFileSync(target, expected)
-  console.log(`Wrote ${target}`)
+  console.log(`Wrote ${file.path}`)
+}
+
+if (checking) {
+  if (stale.length) {
+    console.error(`Out of date: ${stale.join(', ')}\nRun: npm run headers`)
+    process.exit(1)
+  }
+  console.log(`All ${GENERATED_FILES.length} host configuration files match security/headers.js`)
 }

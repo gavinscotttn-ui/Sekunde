@@ -42,6 +42,10 @@
           "value": "off"
         },
         {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
           "key": "Cross-Origin-Opener-Policy",
           "value": "same-origin"
         },

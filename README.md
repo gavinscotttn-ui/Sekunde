@@ -87,24 +87,30 @@ PLAYWRIGHT_CHROMIUM_PATH=/path/to/chrome npm run test:e2e
 
 ## Deploying
 
-The build is a folder of static files — host it anywhere that can serve them.
-`vercel.json` is generated from `security/headers.js`:
+The build is a folder of static files — host it anywhere that can serve them
+over HTTPS. Step-by-step instructions for Vercel, Netlify, Cloudflare Pages and
+your own nginx or Apache server are in **[DEPLOY.md](DEPLOY.md)**, along with a
+checklist for confirming the live site.
+
+`security/headers.js` is the single source of truth for the security headers,
+and generates a ready-made configuration for each of those hosts:
 
 ```bash
-npm run headers         # regenerate vercel.json
-npm run headers:check   # fail if it has drifted (runs in npm run verify)
+npm run headers         # regenerate all five host configuration files
+npm run headers:check   # fail if any has drifted (runs in npm run verify)
 ```
 
-If you host it somewhere other than Vercel, copy the same headers across.
-`security/headers.js` is the single source of truth; `npm test` fails if
-`vercel.json` no longer matches it.
+`npm test` fails if a generated file no longer matches, so the headers cannot
+quietly rot.
 
 ## Layout
 
 ```
 index.html                  page shell (no inline script or style)
+DEPLOY.md                   how to host it, and how to check it once live
 security/headers.js         CSP and hardening headers, single source of truth
-scripts/generate-headers.mjs  writes vercel.json
+scripts/generate-headers.mjs  writes the five host configuration files
+vercel.json, netlify.toml, public/_headers, deploy/*   generated, do not edit
 scripts/serve-dist.mjs      static preview server with the production headers
 scripts/inspect_workbook.py dumps an .xlsx for comparison with the classic form
 src/lib/model.js            the form's data model and team-default logic

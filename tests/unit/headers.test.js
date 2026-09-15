@@ -5,7 +5,7 @@ import {
   BASE_HEADERS,
   CONTENT_SECURITY_POLICY,
   CONTENT_SECURITY_POLICY_META,
-  buildVercelConfig,
+  GENERATED_FILES,
 } from '../../security/headers.js'
 
 function directives(policy) {
@@ -73,9 +73,26 @@ describe('the other response headers', () => {
   })
 })
 
-describe('vercel.json', () => {
-  it('matches security/headers.js exactly', () => {
-    const committed = readFileSync(new URL('../../vercel.json', import.meta.url), 'utf8')
-    expect(committed).toBe(`${JSON.stringify(buildVercelConfig(), null, 2)}\n`)
+describe('the generated host configuration', () => {
+  it('covers the hosts we actually deploy to', () => {
+    const paths = GENERATED_FILES.map((file) => file.path)
+    expect(paths).toContain('vercel.json')
+    expect(paths).toContain('netlify.toml')
+    expect(paths).toContain('public/_headers')
+    expect(paths).toContain('deploy/nginx.conf')
+    expect(paths).toContain('deploy/apache.htaccess')
+  })
+
+  for (const file of GENERATED_FILES) {
+    it(`${file.path} matches security/headers.js exactly`, () => {
+      const committed = readFileSync(new URL(`../../${file.path}`, import.meta.url), 'utf8')
+      expect(committed, `${file.path} is stale. Run: npm run headers`).toBe(file.build())
+    })
+  }
+
+  it('sends the policy in every host format', () => {
+    for (const file of GENERATED_FILES) {
+      expect(file.build(), file.path).toContain("default-src 'none'")
+    }
   })
 })
