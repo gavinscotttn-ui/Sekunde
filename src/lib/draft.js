@@ -159,7 +159,6 @@ export function parseDraft(text) {
     portalUser: cleanText(a.portalUser, LIMITS.name),
     pickupGroups: pickFrom(a.pickupGroups, YES_NO),
     pickupDetails: cleanText(a.pickupDetails, LIMITS.notes),
-    presentMain: pickFrom(a.presentMain, YES_NO),
     extraNotes: cleanText(a.extraNotes, LIMITS.notes),
   }
 

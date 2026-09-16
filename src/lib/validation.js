@@ -31,8 +31,7 @@ export function looksLikeUkMobile(value) {
 }
 
 const SETTING_MESSAGES = {
-  voicemail: 'Choose whether voicemail is needed.',
-  voicemailToEmail: 'Choose whether voicemail should be emailed.',
+  voicemail: 'Choose what should happen when nobody answers.',
   callerId: 'Choose which number is shown on outgoing calls.',
   callerIdNumber: 'Enter the alternative number to display.',
   handset: 'Choose a desk phone option.',
@@ -42,9 +41,9 @@ const SETTING_MESSAGES = {
 
 export function settingsErrors(settings) {
   const errors = {}
-  if (!settings.voicemail) errors.voicemail = SETTING_MESSAGES.voicemail
-  if (settings.voicemail === 'yes' && !settings.voicemailToEmail) {
-    errors.voicemailToEmail = SETTING_MESSAGES.voicemailToEmail
+  // Voicemail is asked as one question, so both stored fields fail together.
+  if (!settings.voicemail || (settings.voicemail === 'yes' && !settings.voicemailToEmail)) {
+    errors.voicemail = SETTING_MESSAGES.voicemail
   }
   if (!settings.callerId) errors.callerId = SETTING_MESSAGES.callerId
   if (settings.callerId === 'Alternative number' && !settings.callerIdNumber.trim()) {
@@ -129,7 +128,6 @@ export function validateStep(data, step) {
     if (a.pickupGroups === 'yes' && a.pickupDetails.trim().length < 5) {
       errors.pickupDetails = 'List the people in each pick-up group.'
     }
-    if (!a.presentMain) errors.presentMain = 'Choose yes or no.'
   }
 
   return errors

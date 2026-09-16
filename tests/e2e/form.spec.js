@@ -96,15 +96,15 @@ test('one change to the team defaults reaches everybody', async ({ page }) => {
 
   const defaults = page.locator('.panel--defaults')
   await expect(defaults.getByText('Corded phone')).toBeVisible()
-  await defaults.getByRole('button', { name: 'Change these options' }).click()
-  await defaults.getByRole('radio', { name: 'Cordless handset', exact: true }).check()
-  await defaults.getByRole('button', { name: 'Done with these options' }).click()
+  await defaults.getByRole('button', { name: 'Change what everyone gets' }).click()
+  await defaults.getByRole('radio', { name: /^A cordless handset/ }).check()
+  await defaults.getByRole('button', { name: 'Done', exact: true }).click()
 
   await expect(defaults.getByText(/Cordless phone/)).toBeVisible()
   const summaries = page.locator('.person__summary-text')
   await expect(summaries).toHaveCount(2)
   for (const text of await summaries.allTextContents()) {
-    expect(text).toBe('Same options as everyone else')
+    expect(text).toBe('Same as everyone else')
   }
 })
 
@@ -115,14 +115,14 @@ test('an individual can differ without disturbing anyone else', async ({ page })
   await page.getByRole('button', { name: 'Back' }).click()
 
   const first = page.locator('.person').first()
-  await first.getByRole('button', { name: 'Different for this person' }).click()
-  await first.getByRole('group', { name: /^Desk phone/ }).getByRole('radio', { name: 'No desk phone' }).check()
+  await first.getByRole('button', { name: 'Change just this person' }).click()
+  await first.getByRole('group', { name: /^What phone sits on their desk/ }).getByRole('radio', { name: /^No desk phone/ }).check()
 
   await expect(first.getByText('Set individually')).toBeVisible()
-  await expect(page.locator('.person').nth(1).getByText('Same options as everyone else')).toBeVisible()
+  await expect(page.locator('.person').nth(1).getByText('Same as everyone else')).toBeVisible()
 
   page.once('dialog', (dialog) => dialog.accept())
-  await page.getByRole('button', { name: 'Use these for everyone' }).click()
+  await page.getByRole('button', { name: 'Give everyone these' }).click()
   await expect(page.locator('.chip--custom')).toHaveCount(0)
 })
 
@@ -184,12 +184,12 @@ test('shows one call-handling topic at a time', async ({ page }) => {
 
   const openBodies = page.locator('.section__body:not([hidden])')
   await expect(openBodies).toHaveCount(1)
-  await expect(page.getByLabel('Emergency divert number')).toBeVisible()
+  await expect(page.getByLabel('If your phones ever go down, where should we send calls?')).toBeVisible()
 
-  await page.getByRole('button', { name: /Day-to-day running/ }).click()
+  await page.getByRole('button', { name: /Looking after it/ }).click()
   await expect(openBodies).toHaveCount(1)
-  await expect(page.getByLabel('Who will look after the system?')).toBeVisible()
-  await expect(page.getByLabel('Emergency divert number')).toBeHidden()
+  await expect(page.getByLabel('Who should we train to look after the phones?')).toBeVisible()
+  await expect(page.getByLabel('If your phones ever go down, where should we send calls?')).toBeHidden()
 })
 
 test('keeps the rarely used actions tucked away until asked for', async ({ page }) => {

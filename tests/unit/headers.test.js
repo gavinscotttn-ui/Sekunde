@@ -77,8 +77,8 @@ describe('the generated host configuration', () => {
   it('covers the hosts we actually deploy to', () => {
     const paths = GENERATED_FILES.map((file) => file.path)
     expect(paths).toContain('vercel.json')
-    expect(paths).toContain('netlify.toml')
-    expect(paths).toContain('public/_headers')
+    expect(paths).toContain('deploy/netlify.toml')
+    expect(paths).toContain('deploy/_headers')
     expect(paths).toContain('deploy/nginx.conf')
     expect(paths).toContain('deploy/apache.htaccess')
   })

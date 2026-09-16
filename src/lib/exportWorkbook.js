@@ -6,7 +6,7 @@
 // strings as text cells, so an answer beginning with "=" stays literal text in
 // Excel rather than becoming a formula.
 
-import { CONTACT, DAYS, effectiveSettings, usesTeamDefaults } from './model.js'
+import { CONTACT, DAYS, effectiveSettings, everyonePresentsMainNumber, usesTeamDefaults } from './model.js'
 import { summariseHours } from './hours.js'
 import { stripFilenameCharacters } from './text.js'
 
@@ -193,8 +193,10 @@ export function additionalQuestionRows(data) {
     ],
     [
       'Are all users to present the main number when dialling out?',
-      yesNo(a.presentMain),
-      a.presentMain === 'no' ? 'Use the per-user choices on the Staff details tab.' : '',
+      everyonePresentsMainNumber(data) ? 'Yes' : 'No',
+      everyonePresentsMainNumber(data)
+        ? ''
+        : 'Mixed — see the number presented for each person on the Staff details tab.',
     ],
     [
       'Anything else we should know?',

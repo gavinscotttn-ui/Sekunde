@@ -24,14 +24,14 @@ const HELP = {
 // Which answers belong to which section, so a section can show a tick when it
 // is finished and a one-line summary when it is closed.
 const SECTIONS = [
-  { id: 'numbers', title: 'Your numbers', keys: ['emergencyDivert', 'portNumbers'] },
+  { id: 'numbers', title: 'Your phone numbers', keys: ['emergencyDivert', 'portNumbers'] },
   {
     id: 'menus',
-    title: 'Menus and voicemail',
+    title: 'How calls get answered',
     keys: ['autoAttendant', 'autoGroups', 'autoRecording', 'callPattern', 'companyVoicemail', 'voicemailPlan'],
   },
-  { id: 'hours', title: 'Opening hours', keys: ['hours', 'scheduledClosures', 'closureDetails', 'onHold', 'onHoldPlan'] },
-  { id: 'admin', title: 'Day-to-day running', keys: ['portalUser', 'pickupGroups', 'pickupDetails', 'presentMain'] },
+  { id: 'hours', title: 'When you are open', keys: ['hours', 'scheduledClosures', 'closureDetails', 'onHold', 'onHoldPlan'] },
+  { id: 'admin', title: 'Looking after it', keys: ['portalUser', 'pickupGroups', 'pickupDetails'] },
 ]
 
 function summarise(id, data) {
@@ -98,13 +98,15 @@ export function CallsStep({ data, setData, errors }) {
     <section className="step-panel" aria-labelledby="step-heading">
       <p className="step-kicker">Step 3 of 4</p>
       <h1 id="step-heading">Call handling</h1>
-      <p className="step-lead">Four short topics. Open one at a time — everything is needed unless it says optional.</p>
+      <p className="step-lead">
+        Four short topics, one at a time. Everything is needed unless it says optional.
+      </p>
 
       <div className="sections">
         <Section {...sectionProps(SECTIONS[0], 0)}>
           <Field
-            label="Emergency divert number"
-            hint="Where calls go if the network is ever unavailable"
+            label="If your phones ever go down, where should we send calls?"
+            hint="A mobile works best. We only use this in an outage."
             anchor="emergencyDivert"
             error={errors.emergencyDivert}
           >
@@ -127,14 +129,14 @@ export function CallsStep({ data, setData, errors }) {
                     That does not look like a UK mobile. Fine if it is deliberate — we will use it as given.
                   </p>
                 )}
-                <HelpNote title="Why do you need this?">{HELP.emergency}</HelpNote>
+                <HelpNote title="When would you use it?">{HELP.emergency}</HelpNote>
               </>
             )}
           </Field>
 
           <Field
-            label="Numbers moving to the new system"
-            hint="Main numbers and direct dials, one per line"
+            label="Which phone numbers do you want to keep?"
+            hint="Everything you advertise, plus anyone's direct number. One per line."
             anchor="portNumbers"
             error={errors.portNumbers}
           >
@@ -145,16 +147,21 @@ export function CallsStep({ data, setData, errors }) {
                   rows={4}
                   maxLength={LIMITS.notes}
                   disabled={a.noNumbersToPort}
-                  placeholder={'0141 111 1111 — Main number\n0141 222 2222 — Jane Smith direct dial'}
                   aria-describedby={describedBy}
                   aria-invalid={invalid || undefined}
                   value={a.portNumbers}
                   onChange={set('portNumbers')}
                 />
+                <p className="example">
+                  <span>Like this</span>
+                  0141 111 1111 — our main number
+                  <br />
+                  0141 222 2222 — Jane Smith
+                </p>
                 <CheckRow checked={a.noNumbersToPort} onChange={set('noNumbersToPort')}>
-                  We have no existing numbers to move across
+                  We are not keeping any numbers — new ones are fine
                 </CheckRow>
-                <HelpNote title="What should I list?">{HELP.porting}</HelpNote>
+                <HelpNote title="What if I miss one?">{HELP.porting}</HelpNote>
               </>
             )}
           </Field>
@@ -162,21 +169,23 @@ export function CallsStep({ data, setData, errors }) {
 
         <Section {...sectionProps(SECTIONS[1], 1)}>
           <ChoiceField
-            label="Do you need an auto attendant?"
-            hint="The recorded menu callers hear, such as “press 1 for sales”"
+            label="Should callers hear a menu before anyone answers?"
             columns="two"
             anchor="autoAttendant"
             error={errors.autoAttendant}
-            options={YES_NO}
+            options={[
+              { value: 'yes', label: 'Yes', description: '“Press 1 for sales, press 2 for accounts”' },
+              { value: 'no', label: 'No', description: 'Calls ring straight through to your team' },
+            ]}
             value={a.autoAttendant}
             onChange={set('autoAttendant')}
           >
-            <HelpNote title="What is an auto attendant?">{HELP.autoAttendant}</HelpNote>
+            <HelpNote title="This is called an auto attendant">{HELP.autoAttendant}</HelpNote>
           </ChoiceField>
 
           {a.autoAttendant === 'yes' && (
             <div className="conditional">
-              <Field label="Menu options and who answers them" anchor="autoGroups" error={errors.autoGroups}>
+              <Field label="What should the menu offer, and who answers each option?" anchor="autoGroups" error={errors.autoGroups}>
                 {({ id, describedBy, invalid }) => (
                   <TextArea
                     id={id}
@@ -192,7 +201,7 @@ export function CallsStep({ data, setData, errors }) {
               </Field>
 
               <ChoiceField
-                label="How will the menu recording be supplied?"
+                label="Who will record the menu message?"
                 columns="three"
                 anchor="autoRecording"
                 error={errors.autoRecording}
@@ -200,7 +209,7 @@ export function CallsStep({ data, setData, errors }) {
                 value={a.autoRecording}
                 onChange={set('autoRecording')}
               >
-                <Field label="Notes or a script for the recording" optional>
+                <Field label="What should it say?" optional>
                   {({ id }) => (
                     <TextArea
                       id={id}
@@ -212,7 +221,7 @@ export function CallsStep({ data, setData, errors }) {
                     />
                   )}
                 </Field>
-                <HelpNote title="How do we get a recording made?">{HELP.recordings}</HelpNote>
+                <HelpNote title="How the recording works">{HELP.recordings}</HelpNote>
               </ChoiceField>
 
               <ChoiceField
@@ -224,18 +233,21 @@ export function CallsStep({ data, setData, errors }) {
                 value={a.callPattern}
                 onChange={set('callPattern')}
               >
-                <HelpNote title="Which should I choose?">{HELP.callPattern}</HelpNote>
+                <HelpNote title="Which suits us?">{HELP.callPattern}</HelpNote>
               </ChoiceField>
             </div>
           )}
 
           <ChoiceField
-            label="Do you want a company voicemail box?"
-            hint="One shared mailbox is usually easier to monitor than several"
+            label="Do you want one shared voicemail box for the company?"
+            hint="Easier to keep an eye on than several separate ones"
             columns="two"
             anchor="companyVoicemail"
             error={errors.companyVoicemail}
-            options={YES_NO}
+            options={[
+              { value: 'yes', label: 'Yes', description: 'One mailbox for the whole company' },
+              { value: 'no', label: 'No', description: 'People have their own, as chosen in step 2' },
+            ]}
             value={a.companyVoicemail}
             onChange={set('companyVoicemail')}
           />
@@ -243,7 +255,7 @@ export function CallsStep({ data, setData, errors }) {
           {a.companyVoicemail === 'yes' && (
             <div className="conditional">
               <Field
-                label="Where should company messages go?"
+                label="Where should those messages go, and what should the greeting say?"
                 hint="Include the mailbox email address if you know it"
                 anchor="voicemailPlan"
                 error={errors.voicemailPlan}
@@ -278,7 +290,7 @@ export function CallsStep({ data, setData, errors }) {
           </div>
 
           <ChoiceField
-            label="Do the lines close at lunchtime or at other set times?"
+            label="Do the phones close at any other times, like lunch?"
             columns="two"
             anchor="scheduledClosures"
             error={errors.scheduledClosures}
@@ -289,7 +301,7 @@ export function CallsStep({ data, setData, errors }) {
 
           {a.scheduledClosures === 'yes' && (
             <div className="conditional">
-              <Field label="Which times, and who do they affect?" anchor="closureDetails" error={errors.closureDetails}>
+              <Field label="Which times, and who does it affect?" anchor="closureDetails" error={errors.closureDetails}>
                 {({ id, describedBy, invalid }) => (
                   <TextArea
                     id={id}
@@ -307,7 +319,7 @@ export function CallsStep({ data, setData, errors }) {
           )}
 
           <ChoiceField
-            label="Music or a message while callers are on hold?"
+            label="Should callers hear music or a message while they hold?"
             columns="two"
             anchor="onHold"
             error={errors.onHold}
@@ -318,7 +330,7 @@ export function CallsStep({ data, setData, errors }) {
 
           {a.onHold === 'yes' && (
             <div className="conditional">
-              <Field label="How will the on-hold audio be supplied?" anchor="onHoldPlan" error={errors.onHoldPlan}>
+              <Field label="Where will that music or message come from?" anchor="onHoldPlan" error={errors.onHoldPlan}>
                 {({ id, describedBy, invalid }) => (
                   <TextArea
                     id={id}
@@ -344,8 +356,8 @@ export function CallsStep({ data, setData, errors }) {
 
         <Section {...sectionProps(SECTIONS[3], 3)}>
           <Field
-            label="Who will look after the system?"
-            hint="We train this person to update holiday messages and make changes"
+            label="Who should we train to look after the phones?"
+            hint="They change holiday messages and make day-to-day tweaks. One name is plenty."
             anchor="portalUser"
             error={errors.portalUser}
           >
@@ -364,20 +376,23 @@ export function CallsStep({ data, setData, errors }) {
           </Field>
 
           <ChoiceField
-            label="Do you need call pick-up groups?"
+            label="Should people be able to answer each other’s ringing phones?"
             columns="two"
             anchor="pickupGroups"
             error={errors.pickupGroups}
-            options={YES_NO}
+            options={[
+              { value: 'yes', label: 'Yes', description: 'Handy when someone steps away from their desk' },
+              { value: 'no', label: 'No', description: 'Each phone is answered by its own person' },
+            ]}
             value={a.pickupGroups}
             onChange={set('pickupGroups')}
           >
-            <HelpNote title="What is a pick-up group?">{HELP.pickup}</HelpNote>
+            <HelpNote title="We call these pick-up groups">{HELP.pickup}</HelpNote>
           </ChoiceField>
 
           {a.pickupGroups === 'yes' && (
             <div className="conditional">
-              <Field label="Who is in each group?" anchor="pickupDetails" error={errors.pickupDetails}>
+              <Field label="Who should be able to answer for whom?" anchor="pickupDetails" error={errors.pickupDetails}>
                 {({ id, describedBy, invalid }) => (
                   <TextArea
                     id={id}
@@ -393,19 +408,6 @@ export function CallsStep({ data, setData, errors }) {
               </Field>
             </div>
           )}
-
-          <ChoiceField
-            label="Should everyone show the main number when dialling out?"
-            columns="two"
-            anchor="presentMain"
-            error={errors.presentMain}
-            options={[
-              { value: 'yes', label: 'Yes, everyone shows the main number' },
-              { value: 'no', label: 'No, use the choices from step 2' },
-            ]}
-            value={a.presentMain}
-            onChange={set('presentMain')}
-          />
 
           <Field label="Anything else we should know?" optional>
             {({ id }) => (

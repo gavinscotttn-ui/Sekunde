@@ -51,7 +51,6 @@ function sampleForm() {
     onHold: 'no',
     portalUser: 'Jane Smith',
     pickupGroups: 'no',
-    presentMain: 'yes',
   })
   return form
 }
@@ -90,6 +89,9 @@ describe('row building', () => {
   it('covers every question from the classic form', () => {
     const rows = additionalQuestionRows(sampleForm())
     expect(rows).toHaveLength(13)
+    // Asked once in step 2, then worked out here rather than asked again.
+    const presented = rows.find((row) => row[0].startsWith('Are all users to present'))
+    expect(presented[1]).toBe('No')
     expect(rows.map((row) => row[0])).toContain('Emergency divert mobile number in the event of a network outage')
     expect(rows.find((row) => row[0].startsWith('Opening and closing'))[2]).toContain('Mon–Fri: 09:00–17:00')
   })

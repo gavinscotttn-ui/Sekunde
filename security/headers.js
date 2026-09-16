@@ -226,10 +226,13 @@ export function buildApacheConfig() {
 }
 
 /** Every file the generator writes: target path relative to the repo root. */
+// vercel.json lives at the root because that is where Vercel reads it. The
+// rest are only needed if the site ever moves elsewhere, so they are kept out
+// of the way in deploy/.
 export const GENERATED_FILES = [
   { path: 'vercel.json', build: () => `${JSON.stringify(buildVercelConfig(), null, 2)}\n` },
-  { path: 'netlify.toml', build: buildNetlifyToml },
-  { path: 'public/_headers', build: buildHeadersFile },
+  { path: 'deploy/netlify.toml', build: buildNetlifyToml },
+  { path: 'deploy/_headers', build: buildHeadersFile },
   { path: 'deploy/nginx.conf', build: buildNginxConfig },
   { path: 'deploy/apache.htaccess', build: buildApacheConfig },
 ]

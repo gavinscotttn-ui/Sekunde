@@ -36,7 +36,10 @@ function TeamOptions({ data, setData, errors, customCount, onApplyToAll }) {
     return (
       <section className="panel panel--defaults" aria-labelledby="defaults-heading">
         <h2 id="defaults-heading">How is your team set up?</h2>
-        <p className="panel__lead">Pick the closest match. It applies to everyone, and you can change it later.</p>
+        <p className="panel__lead">
+          Pick whichever is closest. It saves answering the same questions for every single person, and you can
+          change it later.
+        </p>
         <ul className="preset-grid">
           {TEAM_PRESETS.map((item) => (
             <li key={item.id}>
@@ -48,7 +51,7 @@ function TeamOptions({ data, setData, errors, customCount, onApplyToAll }) {
           ))}
         </ul>
         <button type="button" className="link-button" onClick={() => setEditing(true)}>
-          Or choose each option yourself
+          Or answer the questions one by one
         </button>
       </section>
     )
@@ -56,7 +59,7 @@ function TeamOptions({ data, setData, errors, customCount, onApplyToAll }) {
 
   return (
     <section className="panel panel--defaults" aria-labelledby="defaults-heading">
-      <h2 id="defaults-heading">Options for everyone</h2>
+      <h2 id="defaults-heading">What everyone gets</h2>
 
       {chosen && !editing && (
         <p className="panel__summary">
@@ -68,7 +71,7 @@ function TeamOptions({ data, setData, errors, customCount, onApplyToAll }) {
       {outstanding.length > 0 && !editing && (
         <div className="panel__outstanding">
           <p className="panel__lead">
-            {outstanding.length === 1 ? 'Just one thing left to choose.' : 'A couple of things left to choose.'}
+            {outstanding.length === 1 ? 'One more thing to choose.' : 'A couple more things to choose.'}
           </p>
           <SettingsEditor
             settings={data.defaults}
@@ -91,11 +94,11 @@ function TeamOptions({ data, setData, errors, customCount, onApplyToAll }) {
 
       <div className="panel__footer">
         <button type="button" className="link-button" onClick={() => setEditing((value) => !value)}>
-          {editing ? 'Done with these options' : 'Change these options'}
+          {editing ? 'Done' : 'Change what everyone gets'}
         </button>
         {customCount > 0 && (
           <button type="button" className="secondary-button" onClick={onApplyToAll}>
-            <Wand2 size={17} aria-hidden="true" /> Use these for everyone
+            <Wand2 size={17} aria-hidden="true" /> Give everyone these
           </button>
         )}
       </div>
@@ -167,7 +170,7 @@ function PersonRow({
             className="ghost-button"
             onClick={() => onDuplicate(person)}
             aria-label={`Copy ${person.name.trim() || `person ${index + 1}`}`}
-            title="Add another person with the same options"
+            title="Add another person set up the same way"
           >
             <Copy size={16} aria-hidden="true" />
           </button>
@@ -186,7 +189,7 @@ function PersonRow({
 
       <div className="person__settings">
         {inherits ? (
-          <span className="person__summary-text">Same options as everyone else</span>
+          <span className="person__summary-text">Same as everyone else</span>
         ) : (
           <p className="person__summary">
             <span className="chip chip--custom">Set individually</span>
@@ -196,7 +199,7 @@ function PersonRow({
         <div className="person__setting-actions">
           {!inherits && (
             <button type="button" className="link-button" onClick={() => onChange({ ...person, custom: null })}>
-              Back to team options
+              Use the same as everyone
             </button>
           )}
           <button
@@ -208,7 +211,7 @@ function PersonRow({
               onToggleExpanded(person.id)
             }}
           >
-            {expanded ? 'Hide options' : inherits ? 'Different for this person' : 'Edit their options'}
+            {expanded ? 'Done with this person' : inherits ? 'Change just this person' : 'Change their options'}
           </button>
         </div>
       </div>
@@ -315,12 +318,12 @@ export function PeopleStep({ data, setData, errors }) {
     if (!customCount) return
     const question =
       customCount === 1
-        ? 'One person has their own options. Replace them with the team options?'
-        : `${customCount} people have their own options. Replace them all with the team options?`
+        ? 'One person is set up differently. Give them the same as everyone else?'
+        : `${customCount} people are set up differently. Give them all the same as everyone else?`
     if (!window.confirm(question)) return
     setData((current) => ({ ...current, staff: current.staff.map((person) => ({ ...person, custom: null })) }))
     setExpanded(new Set())
-    setStatus('Everyone now uses the same options.')
+    setStatus('Everyone is now set up the same.')
   }
 
   const handleEmailPattern = () => {
@@ -337,7 +340,7 @@ export function PeopleStep({ data, setData, errors }) {
     <section className="step-panel" aria-labelledby="step-heading">
       <p className="step-kicker">Step 2 of 4</p>
       <h1 id="step-heading">Your team</h1>
-      <p className="step-lead">Set the options once, then add your people.</p>
+      <p className="step-lead">Answer once for the whole team, then add your people.</p>
 
       <TeamOptions
         data={data}

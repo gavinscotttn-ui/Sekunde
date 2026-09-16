@@ -28,7 +28,6 @@ function completedForm() {
     onHold: 'no',
     portalUser: 'Jane Smith',
     pickupGroups: 'no',
-    presentMain: 'yes',
   })
   return form
 }

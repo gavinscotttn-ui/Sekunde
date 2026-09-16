@@ -719,6 +719,27 @@ progress::-moz-progress-bar {
   cursor: pointer;
 }
 
+/* A worked example that stays put, unlike a placeholder that vanishes as soon
+   as somebody starts typing. */
+.example {
+  padding: 10px 13px;
+  background: var(--canvas);
+  border-left: 3px solid var(--purple-line);
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.example span {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 /* -------------------------------------------------------------- help note */
 
 .help-note {

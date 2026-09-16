@@ -12,10 +12,10 @@ export const SAMPLE = {
  * summary, and check() would then wait forever for an element that has gone.
  */
 export async function choose(scope, groupName, optionLabel) {
-  await scope
-    .getByRole('group', { name: groupName })
-    .getByRole('radio', { name: optionLabel, exact: true })
-    .click()
+  // Options carry a short description, so the accessible name starts with the
+  // label rather than equalling it.
+  const label = new RegExp(`^${optionLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
+  await scope.getByRole('group', { name: groupName }).getByRole('radio', { name: label }).click()
 }
 
 export async function fillAboutStep(page) {
@@ -27,7 +27,7 @@ export async function fillAboutStep(page) {
 export async function fillTeamStep(page) {
   const defaults = page.locator('.panel--defaults')
   await defaults.getByRole('button', { name: /Desk phones and apps/ }).click()
-  await choose(defaults, /^Mobile app/, 'iPhone (iOS)')
+  await choose(defaults, /^Do they need to take work calls on their mobile/, 'Yes, on iPhone')
 
   await page.getByText('Paste a list instead').click()
   await page
@@ -39,21 +39,19 @@ export async function fillTeamStep(page) {
 }
 
 export async function fillCallsStep(page) {
-  await page.getByLabel('Emergency divert number').fill(SAMPLE.divert)
-  await page.getByLabel('Numbers moving to the new system').fill(SAMPLE.portNumbers)
-  await page.getByRole('button', { name: /^Next: menus and voicemail/ }).click()
+  await page.getByLabel('If your phones ever go down, where should we send calls?').fill(SAMPLE.divert)
+  await page.getByLabel('Which phone numbers do you want to keep?').fill(SAMPLE.portNumbers)
+  await page.getByRole('button', { name: /^Next: how calls get answered/ }).click()
 
-  await choose(page, /^Do you need an auto attendant\?/, 'No')
-  await choose(page, /^Do you want a company voicemail box\?/, 'No')
-  await page.getByRole('button', { name: /^Next: opening hours/ }).click()
+  await choose(page, /^Should callers hear a menu/, 'No')
+  await choose(page, /^Do you want one shared voicemail box/, 'No')
+  await page.getByRole('button', { name: /^Next: when you are open/ }).click()
 
-  await choose(page, /^Do the lines close at lunchtime/, 'No')
-  await choose(page, /^Music or a message while callers are on hold\?/, 'No')
-  await page.getByRole('button', { name: /^Next: day-to-day running/ }).click()
+  await choose(page, /^Do the phones close at any other times/, 'No')
+  await choose(page, /^Should callers hear music or a message/, 'No')
+  await page.getByRole('button', { name: /^Next: looking after it/ }).click()
 
-  await page.getByLabel('Who will look after the system?').fill(SAMPLE.portalUser)
-  await choose(page, /^Do you need call pick-up groups\?/, 'No')
-  await choose(page, /^Should everyone show the main number/, 'Yes, everyone shows the main number')
-
+  await page.getByLabel('Who should we train to look after the phones?').fill(SAMPLE.portalUser)
+  await choose(page, /^Should people be able to answer each other/, 'No')
   await page.getByRole('button', { name: 'Continue' }).click()
 }

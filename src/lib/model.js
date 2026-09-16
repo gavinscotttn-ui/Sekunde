@@ -2,7 +2,7 @@
 // person in sync with the team defaults. Nothing in here touches the network,
 // storage or the DOM: it is pure data so it can be unit tested in Node.
 
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 export const CONTACT = {
   email: 'info@telecomnetworks.co.uk',
@@ -19,34 +19,72 @@ export const YES_NO = [
   { value: 'no', label: 'No' },
 ]
 
+// Option labels are written the way a customer would say it. The stored values
+// stay as they are, because that is the wording our engineers read in the
+// finished spreadsheet.
+
 export const CALLER_ID_OPTIONS = [
-  { value: 'Main office number', label: 'Main office number' },
-  { value: 'Direct dial', label: 'Their direct dial' },
-  { value: 'Alternative number', label: 'Another number' },
+  { value: 'Main office number', label: 'Your main office number', description: 'Everyone looks like one switchboard' },
+  { value: 'Direct dial', label: 'Their own direct number', description: 'Customers can ring them straight back' },
+  { value: 'Alternative number', label: 'A different number', description: 'Another number on your account' },
 ]
 
 export const HANDSET_OPTIONS = [
-  { value: 'Corded', label: 'Corded desk phone' },
-  { value: 'Cordless', label: 'Cordless handset' },
-  { value: 'None', label: 'No desk phone' },
+  { value: 'Corded', label: 'A corded phone', description: 'Stays on the desk' },
+  { value: 'Cordless', label: 'A cordless handset', description: 'Can be carried around' },
+  { value: 'None', label: 'No desk phone', description: 'They will use the apps instead' },
 ]
 
 export const MOBILE_APP_OPTIONS = [
-  { value: 'iOS', label: 'iPhone (iOS)' },
-  { value: 'Android', label: 'Android' },
-  { value: 'None', label: 'Not needed' },
+  { value: 'iOS', label: 'Yes, on iPhone' },
+  { value: 'Android', label: 'Yes, on Android' },
+  { value: 'None', label: 'No, not needed' },
 ]
 
 export const RECORDING_OPTIONS = [
-  { value: 'We already have an audio file', label: 'We already have a file' },
-  { value: 'Someone in our team will record it', label: 'We will record it' },
-  { value: 'Telecom Networks to arrange a professional recording', label: 'Professional recording' },
+  { value: 'We already have an audio file', label: 'We will send you a file we already have' },
+  { value: 'Someone in our team will record it', label: 'Someone here will record it' },
+  {
+    value: 'Telecom Networks to arrange a professional recording',
+    label: 'Please arrange a professional one',
+    description: 'Chargeable',
+  },
 ]
 
 export const CALL_PATTERN_OPTIONS = [
-  { value: 'Simultaneous', label: 'Ring everyone at once' },
-  { value: 'Sequential', label: 'Ring one after another' },
+  { value: 'Simultaneous', label: 'Every phone at once', description: 'Whoever is free picks it up' },
+  { value: 'Sequential', label: 'One person, then the next', description: 'In the order you give us' },
 ]
+
+/**
+ * Voicemail used to be two questions — "voicemail?" then "voicemail to email?" —
+ * which is really one decision. The two stored fields stay, because that is what
+ * the spreadsheet expects, but the customer answers once.
+ */
+export const VOICEMAIL_OPTIONS = [
+  {
+    value: 'email',
+    label: 'Yes, and email it to them',
+    description: 'A copy of every message lands in their inbox',
+  },
+  { value: 'mailbox', label: 'Yes, on the phone only', description: 'They dial in to listen' },
+  { value: 'none', label: 'No voicemail', description: 'Callers hear ringing, then nothing' },
+]
+
+export function voicemailChoice(settings) {
+  if (settings.voicemail === 'no') return 'none'
+  if (settings.voicemail !== 'yes') return ''
+  if (settings.voicemailToEmail === 'yes') return 'email'
+  if (settings.voicemailToEmail === 'no') return 'mailbox'
+  return ''
+}
+
+export function applyVoicemailChoice(settings, choice) {
+  if (choice === 'none') return { ...settings, voicemail: 'no', voicemailToEmail: 'no' }
+  if (choice === 'mailbox') return { ...settings, voicemail: 'yes', voicemailToEmail: 'no' }
+  if (choice === 'email') return { ...settings, voicemail: 'yes', voicemailToEmail: 'yes' }
+  return { ...settings, voicemail: '', voicemailToEmail: '' }
+}
 
 /**
  * Common ways a small team is set up. Choosing one answers most of the
@@ -200,7 +238,6 @@ export function createForm() {
       portalUser: '',
       pickupGroups: '',
       pickupDetails: '',
-      presentMain: '',
       extraNotes: '',
     },
   }
@@ -221,6 +258,13 @@ export function needsEmail(settings) {
     settings.voicemailToEmail === 'yes' ||
     (Boolean(settings.mobileApp) && settings.mobileApp !== 'None') ||
     settings.desktopApp === 'yes'
+  )
+}
+
+/** True when everybody is set to show the main office number when dialling out. */
+export function everyonePresentsMainNumber(data) {
+  return data.staff.every(
+    (person) => effectiveSettings(person, data.defaults).callerId === 'Main office number',
   )
 }
 
